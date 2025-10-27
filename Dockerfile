@@ -1,11 +1,17 @@
-FROM maven:3.9.9-eclipse-temurin-17 AS build
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Use an official JDK base image
+FROM eclipse-temurin:21-jdk
 
-FROM eclipse-temurin:17-jre
+# Set working directory inside container
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-CMD ["java", "-jar", "app.jar"]
+
+# Copy your source code into the container
+COPY src ./src
+
+# Compile the Java file
+RUN javac src/main/java/com/example/Main.java -d out
+
+# Set the working directory to compiled output
+WORKDIR /app/out
+
+# Run the program
+CMD ["java", "com.example.Main"]
